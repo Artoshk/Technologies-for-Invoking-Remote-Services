@@ -16,76 +16,49 @@ CREATE TABLE Playlist (
 CREATE TABLE Musica (
     ID SERIAL PRIMARY KEY,
     Nome VARCHAR(100),
-    Artista VARCHAR(100),
-    Playlist_ID INTEGER REFERENCES Playlist(ID)
+    Artista VARCHAR(100)
 );
 
--- Inserção de usuarios
+-- Criação da tabela Playlist_Musica (tabela de associação)
+CREATE TABLE Playlist_Musica (
+    ID SERIAL PRIMARY KEY,
+    Playlist_ID INTEGER REFERENCES Playlist(ID),
+    Musica_ID INTEGER REFERENCES Musica(ID)
+);
+
+-- Inserir dados na tabela Usuario
 INSERT INTO Usuario (Nome, Idade) VALUES
-    ('Usuario 1', 25),
-    ('Usuario 2', 30),
-    ('Usuario 3', 40),
-    ('Usuario 4', 22),
-    ('Usuario 5', 28);
+    ('Joao', 25),
+    ('Maria', 30),
+    ('Pedro', 28),
+    ('Ana', 35);
 
--- Inserção de playlists do Usuario 1
+-- Inserir dados na tabela Playlist
 INSERT INTO Playlist (Nome, Usuario_ID) VALUES
-    ('Playlist 1 do Usuario 1', 1),
-    ('Playlist 2 do Usuario 1', 1);
+    ('Playlist 1', 1),
+    ('Playlist 2', 1),
+    ('Playlist 3', 2),
+    ('Playlist 4', 3);
 
--- Inserção de musicas na Playlist 1 do Usuario 1
-INSERT INTO Musica (Nome, Artista, Playlist_ID) VALUES
-    ('Musica 1', 'Artista 1', 1),
-    ('Musica 2', 'Artista 2', 1),
-    ('Musica 3', 'Artista 3', 1);
+-- Inserir dados na tabela Musica
+INSERT INTO Musica (Nome, Artista) VALUES
+    ('Musica 1', 'Artista 1'),
+    ('Musica 2', 'Artista 2'),
+    ('Musica 3', 'Artista 3'),
+    ('Musica 4', 'Artista 4');
 
--- Inserção de musicas na Playlist 2 do Usuario 1
-INSERT INTO Musica (Nome, Artista, Playlist_ID) VALUES
-    ('Musica 4', 'Artista 4', 2),
-    ('Musica 5', 'Artista 5', 2);
-
--- Inserção de playlists do Usuario 2
-INSERT INTO Playlist (Nome, Usuario_ID) VALUES
-    ('Playlist 1 do Usuario 2', 2);
-
--- Inserção de musicas na Playlist 1 do Usuario 2
-INSERT INTO Musica (Nome, Artista, Playlist_ID) VALUES
-    ('Musica 6', 'Artista 6', 3);
-
--- Inserção de playlists do Usuario 3
-INSERT INTO Playlist (Nome, Usuario_ID) VALUES
-    ('Playlist 1 do Usuario 3', 3),
-    ('Playlist 2 do Usuario 3', 3),
-    ('Playlist 3 do Usuario 3', 3);
-
--- Inserção de musicas na Playlist 1 do Usuario 3
-INSERT INTO Musica (Nome, Artista, Playlist_ID) VALUES
-    ('Musica 7', 'Artista 7', 4),
-    ('Musica 8', 'Artista 8', 4),
-    ('Musica 9', 'Artista 9', 4),
-    ('Musica 10', 'Artista 10', 4);
-
--- Inserção de musicas na Playlist 2 do Usuario 3
-INSERT INTO Musica (Nome, Artista, Playlist_ID) VALUES
-    ('Musica 11', 'Artista 11', 5),
-    ('Musica 12', 'Artista 12', 5);
-
--- Inserção de musicas na Playlist 3 do Usuario 3
-INSERT INTO Musica (Nome, Artista, Playlist_ID) VALUES
-    ('Musica 13', 'Artista 13', 6);
-
--- Inserção de playlists do Usuario 4
-INSERT INTO Playlist (Nome, Usuario_ID) VALUES
-    ('Playlist 1 do Usuario 4', 4);
-
--- Inserção de musicas na Playlist 1 do Usuario 4
-INSERT INTO Musica (Nome, Artista, Playlist_ID) VALUES
-    ('Musica 14', 'Artista 14', 7);
-
--- Inserção de playlists do Usuario 5
-INSERT INTO Playlist (Nome, Usuario_ID) VALUES
-    ('Playlist 1 do Usuario 5', 5);
-
--- Inserção de musicas na Playlist 1 do Usuario 5
-INSERT INTO Musica (Nome, Artista, Playlist_ID) VALUES
-    ('Musica 15', 'Artista 15', 8);
+-- Inserir dados na tabela Playlist_Musica
+INSERT INTO Playlist_Musica (Playlist_ID, Musica_ID) VALUES
+    (1, 1),
+    (1, 2),
+    (1, 3),
+    (1, 4),
+    (1, 2),
+    (2, 3),
+    (2, 4),
+    (2, 2),
+    (3, 4),
+    (3, 1),
+    (3, 2),
+    (4, 1),
+    (4, 2);
