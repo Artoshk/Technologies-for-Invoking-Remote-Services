@@ -1,2 +1,4 @@
 mysql
 postgres-data
+node_modules
+elixir_graphql
