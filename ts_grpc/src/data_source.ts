@@ -9,12 +9,12 @@ let AppDataSource: Promise<DataSource> | undefined;
 export const getAppDataSource = () => {
     if (!AppDataSource) {
         AppDataSource = new DataSource({
-            type: "mysql",
+            type: "postgres",
             host: "localhost",
-            port: 3306,
-            username: "admin",
-            password: "admin",
-            database: "dev",
+            port: 5432,
+            username: "postgres",
+            password: "postgres",
+            database: "postgres",
             entities: [
                 Usuario,
                 Playlist,
