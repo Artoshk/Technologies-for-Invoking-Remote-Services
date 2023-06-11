@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 )
 
 type Usuario struct {
@@ -33,11 +33,12 @@ const (
 	basePathUsuario = "/users"
 	basePathPlaylist = "/playlists"
 	basePathMusica = "/songs"
+	connectionString = "host=localhost port=5432 user=postgres password=postgres dbname=postgres sslmode=disable"
 )
 
 func main() {
 	var err error
-	db, err = sql.Open("mysql", "admin:admin@tcp(localhost:3306)/dev")
+	db, err = sql.Open("postgres", connectionString)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -159,7 +160,7 @@ func GetPlaylistsByUsuarioID(c *gin.Context) {
 }
 
 func getPlaylistsByUsuarioID(usuarioID int) ([]Playlist, error) {
-	rows, err := db.Query("SELECT id, nome, usuario_id FROM playlist WHERE usuario_id = ?", usuarioID)
+	rows, err := db.Query("SELECT id, nome, usuario_id FROM playlist WHERE usuario_id = $1", usuarioID)
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +198,7 @@ func GetMusicasByPlaylistID(c *gin.Context) {
 }
 
 func getMusicasByPlaylistID(playlistID int) ([]Musica, error) {
-	rows, err := db.Query("SELECT Musica.ID, Musica.Nome, Musica.Artista FROM Musica JOIN Playlist_Musica ON Musica.ID = Playlist_Musica.Musica_ID WHERE Playlist_Musica.Playlist_ID = ?", playlistID)
+	rows, err := db.Query("SELECT musica.id, musica.nome, musica.artista FROM musica JOIN playlist_musica ON musica.id = playlist_musica.musica_id WHERE playlist_musica.playlist_id = $1", playlistID)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -236,7 +237,7 @@ func GetPlaylistsByMusicaID(c *gin.Context) {
 }
 
 func getPlaylistsByMusicaID(musicaID int) ([]Playlist, error) {
-	rows, err := db.Query("SELECT Playlist.ID, Playlist.Nome FROM Playlist JOIN Playlist_Musica ON Playlist.ID = Playlist_Musica.Playlist_ID WHERE Playlist_Musica.Musica_ID = ?", musicaID)
+	rows, err := db.Query("SELECT playlist.id, playlist.nome FROM playlist JOIN playlist_musica ON playlist.id = playlist_musica.playlist_id WHERE playlist_musica.musica_id = $1", musicaID)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
