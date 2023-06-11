@@ -16,9 +16,9 @@ type Usuario struct {
 }
 
 type Playlist struct {
-	ID         int    `json:"id"`
-	Nome       string `json:"nome"`
-	UsuarioID     int    `json:"usuario_id"`
+	ID        int    `json:"id"`
+	Nome      string `json:"nome"`
+	UsuarioID int    `json:"usuario_id"`
 }
 
 type Musica struct {
@@ -30,9 +30,9 @@ type Musica struct {
 var db *sql.DB
 
 const (
-	basePathUsuario = "/users"
+	basePathUsuario  = "/users"
 	basePathPlaylist = "/playlists"
-	basePathMusica = "/songs"
+	basePathMusica   = "/songs"
 	connectionString = "host=localhost port=5432 user=postgres password=postgres dbname=postgres sslmode=disable"
 )
 
@@ -53,9 +53,10 @@ func main() {
 
 	router.GET(basePathUsuario, GetUsuarios)
 	router.GET(basePathUsuario+"/:id", GetUsuarioByID)
-	router.POST(basePathUsuario, CreateUsuario)
-	router.PUT(basePathUsuario+":id", UpdateUsuario)
-	router.DELETE(basePathUsuario+"/:id", DeleteUsuario)
+	router.GET(basePathPlaylist, GetPlaylists)
+	router.GET(basePathPlaylist+"/:id", GetPlaylistByID)
+	router.GET(basePathMusica, GetMusicas)
+	router.GET(basePathMusica+"/:id", GetMusicaByID)
 	router.GET(basePathPlaylist+"/users/:id", GetPlaylistsByUsuarioID)
 	router.GET(basePathPlaylist+"/:id/songs", GetMusicasByPlaylistID)
 	router.GET(basePathMusica+"/:id/playlists", GetPlaylistsByMusicaID)
@@ -86,60 +87,99 @@ func GetUsuarioByID(c *gin.Context) {
 	id := c.Param("id")
 
 	var usuario Usuario
-	err := db.QueryRow("SELECT * FROM Usuario WHERE ID = ?", id).Scan(&usuario.ID, &usuario.Nome, &usuario.Idade)
+	err := db.QueryRow("SELECT * FROM Usuario WHERE ID = $1", id).Scan(&usuario.ID, &usuario.Nome, &usuario.Idade)
 	if err != nil {
-		log.Fatal(err)
+		if err == sql.ErrNoRows {
+			c.JSON(404, gin.H{"error": "Usuário não encontrado"})
+			return
+		}
+		c.JSON(500, gin.H{"error": "Erro ao obter o usuário"})
+		return
 	}
 
 	c.JSON(200, usuario)
 }
 
-func CreateUsuario(c *gin.Context) {
-	var usuario Usuario
-	if err := c.ShouldBindJSON(&usuario); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+func GetPlaylists(c *gin.Context) {
+	rows, err := db.Query("SELECT * FROM Playlist")
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(404, gin.H{"error": "Nenhuma playlist encontrada"})
+			return
+		}
+		c.JSON(500, gin.H{"error": "Erro ao obter as playlists"})
 		return
 	}
 
-	result, err := db.Exec("INSERT INTO Usuario (Nome, Idade) VALUES (?, ?)", usuario.Nome, usuario.Idade)
-	if err != nil {
-		log.Fatal(err)
+	var playlists []Playlist
+	for rows.Next() {
+		var playlist Playlist
+		err := rows.Scan(&playlist.ID, &playlist.Nome, &playlist.UsuarioID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		playlists = append(playlists, playlist)
 	}
 
-	lastInsertID, err := result.LastInsertId()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	c.JSON(201, gin.H{"id": lastInsertID})
+	c.JSON(200, playlists)
 }
 
-func UpdateUsuario(c *gin.Context) {
+func GetPlaylistByID(c *gin.Context) {
 	id := c.Param("id")
 
-	var usuario Usuario
-	if err := c.ShouldBindJSON(&usuario); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	var playlist Playlist
+	err := db.QueryRow("SELECT * FROM Playlist WHERE ID = $1", id).Scan(&playlist.ID, &playlist.Nome, &playlist.UsuarioID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(404, gin.H{"error": "Playlist não encontrada"})
+			return
+		}
+		c.JSON(500, gin.H{"error": "Erro ao obter a playlist"})
 		return
 	}
 
-	_, err := db.Exec("UPDATE Usuario SET Nome = ?, Idade = ? WHERE ID = ?", usuario.Nome, usuario.Idade, id)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	c.JSON(200, gin.H{"message": "Usuario atualizado com sucesso"})
+	c.JSON(200, playlist)
 }
 
-func DeleteUsuario(c *gin.Context) {
-	id := c.Param("id")
-
-	_, err := db.Exec("DELETE FROM Usuario WHERE ID = ?", id)
+func GetMusicas(c *gin.Context) {
+	rows, err := db.Query("SELECT * FROM Musica")
 	if err != nil {
-		log.Fatal(err)
+		if err == sql.ErrNoRows {
+			c.JSON(404, gin.H{"error": "Nenhuma música encontrada"})
+			return
+		}
+		c.JSON(500, gin.H{"error": "Erro ao obter as músicas"})
+		return
 	}
 
-	c.JSON(200, gin.H{"message": "Usuario removido com sucesso"})
+	var musicas []Musica
+	for rows.Next() {
+		var musica Musica
+		err := rows.Scan(&musica.ID, &musica.Nome, &musica.Artista)
+		if err != nil {
+			log.Fatal(err)
+		}
+		musicas = append(musicas, musica)
+	}
+
+	c.JSON(200, musicas)
+}
+
+func GetMusicaByID(c *gin.Context) {
+	id := c.Param("id")
+
+	var musica Musica
+	err := db.QueryRow("SELECT * FROM Musica WHERE ID = $1", id).Scan(&musica.ID, &musica.Nome, &musica.Artista)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(404, gin.H{"error": "Música não encontrada"})
+			return
+		}
+		c.JSON(500, gin.H{"error": "Erro ao obter a música"})
+		return
+	}
+
+	c.JSON(200, musica)
 }
 
 func GetPlaylistsByUsuarioID(c *gin.Context) {
