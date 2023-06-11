@@ -15,7 +15,7 @@
   },
   "emitDecoratorMetadata": true,
   "experimentalDecorators": true,
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/server.js", "src/grpcServer.js", "src/entity/Musica.ts", "src/entity/Usuario.ts", "src/entity/PlaylistMusica.ts", "src/entity/Playlist.ts", "src/data_source.ts"],
   "exclude": [
     "node_modules/**/*",
     ".serverless/**/*",
