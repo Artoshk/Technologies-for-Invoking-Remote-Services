@@ -1,3 +1,7 @@
 mysql
 postgres-data
+node_modules
+elixir_graphql
+yarn.lock
+yarn-error.log
 __pycache__
